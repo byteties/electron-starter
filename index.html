@@ -2,12 +2,12 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <script>var exports = {};</script>
   </head>
   <body>
-    Title: <input id="title"/>
+    Question: <input id="title"/>
     <button id="set" type="button">Set</button>
-    <script src='./dist/renderer.js'></script>
+    <p id="answer"></p>
+    <script>var exports = {};</script>
+    <script type="module" src='./dist/renderer.js'></script>
   </body>
 </html>

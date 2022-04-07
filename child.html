@@ -2,15 +2,14 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
     <link href="./styles.css" rel="stylesheet">
     <title>Hello World!</title>
-    <script>var exports = {};</script>
   </head>
   <body>
-    <h1 id="question">Hello World!</h1>
-    <input id="answer"></input>
+    Question : <h1 id="question">Hello World!</h1>
+    Answer : <input id="answer"></input>
     <button id="send" type="button">Send</button>
-    <script src='./dist/child-renderer.js'></script>
+    <script>var exports = {};</script>
+    <script type="module" src='./dist/child-renderer.js'></script>
   </body>
 </html>

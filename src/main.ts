@@ -1,5 +1,4 @@
-// Object.defineProperty(exports, "__esModule", { value: true });
-import { app, BrowserWindow,ipcMain } from "electron";
+import { app, BrowserWindow,ipcMain,ipcRenderer } from "electron";
 import * as path from "path";
 
 function createWindow () {
@@ -7,27 +6,40 @@ function createWindow () {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, '../dist/preload.js')
+      preload: path.join(__dirname, '../dist/preload.js'),
+      nodeIntegration: true,
+      contextIsolation: false,
     }
   })
 
-  ipcMain.on('send-title-child', (value) => {
-    const childWindow = new BrowserWindow({
-      width: 500,
-      height: 500
-    })
-    childWindow.loadFile('../child.html')
-    childWindow.show()
-    childWindow.webContents.send('set-title-child',value)
+  ipcMain.on('send-ans', (event,value:any) => {
+    mainWindow.webContents.send('set-answer',value.answer)
   })
 
   mainWindow.loadFile('../index.html')
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 }
 
 app.whenReady().then(() => {
   createWindow()
-  
+  const childWindow = new BrowserWindow({
+    width: 1000,
+    height: 500,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    }
+  })
+  childWindow.hide()
+
+  ipcMain.on('send-title-child', (event,value:any) => {
+    childWindow.loadFile('../child.html').then(() => {
+      childWindow.webContents.send('set-title-child',value.title)
+    })
+    childWindow.show()
+    // childWindow.webContents.openDevTools()
+  })
+
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
