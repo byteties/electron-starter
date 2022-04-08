@@ -12,9 +12,9 @@ function createWindow () {
     }
   })
 
-  ipcMain.on('send-ans', (event,value:any) => {
-    mainWindow.webContents.send('set-answer',value.answer)
-  })
+  // ipcMain.on('send-ans', (event,value:any) => {
+  //   mainWindow.webContents.send('set-answer',value.answer)
+  // })
 
   mainWindow.loadFile('../index.html')
   // mainWindow.webContents.openDevTools()
@@ -32,14 +32,24 @@ app.whenReady().then(() => {
   })
   childWindow.hide()
 
-  ipcMain.on('send-title-child', (event,value:any) => {
-    childWindow.loadFile('../child.html').then(() => {
-      childWindow.webContents.send('set-title-child',value.title)
-    })
-    childWindow.show()
-    // childWindow.webContents.openDevTools()
-  })
+  // ipcMain.on('send-title-child', (event,value:any) => {
+  //   childWindow.loadFile('../child.html').then(() => {
+  //     childWindow.webContents.send('set-title-child',value.title)
+  //   })
+  //   childWindow.show()
+  //   // childWindow.webContents.openDevTools()
+  // })
 
+
+  for (let i = 0; i < 3; i++) {
+    ipcMain.on(`show-answer-${i+1}`, (event,value:any) => {
+        childWindow.loadFile('../child.html').then(() => {
+          childWindow.webContents.send('set-title-child',value)
+        })
+        childWindow.show()
+    })
+  }
+  
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })

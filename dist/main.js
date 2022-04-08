@@ -35,11 +35,11 @@ function createWindow() {
             contextIsolation: false,
         }
     });
-    electron_1.ipcMain.on('send-ans', (event, value) => {
-        mainWindow.webContents.send('set-answer', value.answer);
-    });
+    // ipcMain.on('send-ans', (event,value:any) => {
+    //   mainWindow.webContents.send('set-answer',value.answer)
+    // })
     mainWindow.loadFile('../index.html');
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools()
 }
 electron_1.app.whenReady().then(() => {
     createWindow();
@@ -52,13 +52,21 @@ electron_1.app.whenReady().then(() => {
         }
     });
     childWindow.hide();
-    electron_1.ipcMain.on('send-title-child', (event, value) => {
-        childWindow.loadFile('../child.html').then(() => {
-            childWindow.webContents.send('set-title-child', value.title);
+    // ipcMain.on('send-title-child', (event,value:any) => {
+    //   childWindow.loadFile('../child.html').then(() => {
+    //     childWindow.webContents.send('set-title-child',value.title)
+    //   })
+    //   childWindow.show()
+    //   // childWindow.webContents.openDevTools()
+    // })
+    for (let i = 0; i < 3; i++) {
+        electron_1.ipcMain.on(`show-answer-${i + 1}`, (event, value) => {
+            childWindow.loadFile('../child.html').then(() => {
+                childWindow.webContents.send('set-title-child', value);
+            });
+            childWindow.show();
         });
-        childWindow.show();
-        childWindow.webContents.openDevTools();
-    });
+    }
     electron_1.app.on('activate', function () {
         if (electron_1.BrowserWindow.getAllWindows().length === 0)
             createWindow();
