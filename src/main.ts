@@ -1,7 +1,7 @@
 import { app, BrowserWindow,ipcMain,ipcRenderer } from "electron";
 import * as path from "path";
 
-function createWindow () {
+const createWindow =()=> {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -9,6 +9,7 @@ function createWindow () {
       preload: path.join(__dirname, '../dist/preload.js'),
       nodeIntegration: true,
       contextIsolation: false,
+      enableRemoteModule: true,
     }
   })
 
@@ -17,7 +18,7 @@ function createWindow () {
   // })
 
   mainWindow.loadFile('../index.html')
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 }
 
 app.whenReady().then(() => {
@@ -28,6 +29,7 @@ app.whenReady().then(() => {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
+      enableRemoteModule: true,
     }
   })
   childWindow.hide()
@@ -37,7 +39,7 @@ app.whenReady().then(() => {
   //     childWindow.webContents.send('set-title-child',value.title)
   //   })
   //   childWindow.show()
-  //   // childWindow.webContents.openDevTools()
+    childWindow.webContents.openDevTools()
   // })
 
 

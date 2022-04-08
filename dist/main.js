@@ -25,7 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
-function createWindow() {
+const createWindow = () => {
     const mainWindow = new electron_1.BrowserWindow({
         width: 800,
         height: 600,
@@ -33,14 +33,15 @@ function createWindow() {
             preload: path.join(__dirname, '../dist/preload.js'),
             nodeIntegration: true,
             contextIsolation: false,
+            // enableRemoteModule: true,
         }
     });
     // ipcMain.on('send-ans', (event,value:any) => {
     //   mainWindow.webContents.send('set-answer',value.answer)
     // })
     mainWindow.loadFile('../index.html');
-    // mainWindow.webContents.openDevTools()
-}
+    mainWindow.webContents.openDevTools();
+};
 electron_1.app.whenReady().then(() => {
     createWindow();
     const childWindow = new electron_1.BrowserWindow({
@@ -49,6 +50,7 @@ electron_1.app.whenReady().then(() => {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
+            // enableRemoteModule: true,
         }
     });
     childWindow.hide();
@@ -57,7 +59,7 @@ electron_1.app.whenReady().then(() => {
     //     childWindow.webContents.send('set-title-child',value.title)
     //   })
     //   childWindow.show()
-    //   // childWindow.webContents.openDevTools()
+    childWindow.webContents.openDevTools();
     // })
     for (let i = 0; i < 3; i++) {
         electron_1.ipcMain.on(`show-answer-${i + 1}`, (event, value) => {
