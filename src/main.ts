@@ -1,6 +1,6 @@
 import { app, BrowserWindow,ipcMain } from "electron";
 import * as path from "path";
-import { MAIN_HEIGHT,MAIN_WIDTH,CHILD_HEIGHT,CHILD_WIDTH,SEND_ANSWER,SET_ANSWER,SEND_TITLE_CHILD,SHOW_ANSWER,SET_TITLE_ANSWER } from './constants'
+import { MAIN_HEIGHT,MAIN_WIDTH,CHILD_HEIGHT,CHILD_WIDTH,SEND_ANSWER,SET_ANSWER,SEND_TITLE_CHILD,SHOW_ANSWER,SET_TITLE_CHILD } from './constants'
 
 const createWindow =()=> {
   const mainWindow = new BrowserWindow({
@@ -18,7 +18,7 @@ const createWindow =()=> {
   })
 
   mainWindow.loadFile('../index.html')
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 }
 
 const createChildWindow = () =>{
@@ -34,16 +34,16 @@ const createChildWindow = () =>{
 
   ipcMain.on(SEND_TITLE_CHILD, (event,value:string) => {
     childWindow.loadFile('../child.html').then(() => {
-      childWindow.webContents.send(SET_TITLE_ANSWER,value)
+      childWindow.webContents.send(SET_TITLE_CHILD,value)
     })
     childWindow.show()
-    childWindow.webContents.openDevTools()
+    // childWindow.webContents.openDevTools()
   })
 
   for (let i = 0; i < 3; i++) {
     ipcMain.on(`${SHOW_ANSWER}${i+1}`, (event,value:string) => {
         childWindow.loadFile('../child.html').then(() => {
-          childWindow.webContents.send(SET_TITLE_ANSWER,value)
+          childWindow.webContents.send(SET_TITLE_CHILD,value)
         })
         childWindow.show()
     })

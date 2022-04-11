@@ -40,7 +40,7 @@ const createWindow = () => {
         mainWindow.webContents.send(constants_1.SET_ANSWER, value);
     });
     mainWindow.loadFile('../index.html');
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools()
 };
 const createChildWindow = () => {
     const childWindow = new electron_1.BrowserWindow({
@@ -54,15 +54,15 @@ const createChildWindow = () => {
     childWindow.hide();
     electron_1.ipcMain.on(constants_1.SEND_TITLE_CHILD, (event, value) => {
         childWindow.loadFile('../child.html').then(() => {
-            childWindow.webContents.send(constants_1.SET_TITLE_ANSWER, value);
+            childWindow.webContents.send(constants_1.SET_TITLE_CHILD, value);
         });
         childWindow.show();
-        childWindow.webContents.openDevTools();
+        // childWindow.webContents.openDevTools()
     });
     for (let i = 0; i < 3; i++) {
         electron_1.ipcMain.on(`${constants_1.SHOW_ANSWER}${i + 1}`, (event, value) => {
             childWindow.loadFile('../child.html').then(() => {
-                childWindow.webContents.send(constants_1.SET_TITLE_ANSWER, value);
+                childWindow.webContents.send(constants_1.SET_TITLE_CHILD, value);
             });
             childWindow.show();
         });
