@@ -35,9 +35,9 @@ function createWindow() {
             contextIsolation: false,
         }
     });
-    // ipcMain.on('send-ans', (event,value:any) => {
-    //   mainWindow.webContents.send('set-answer',value.answer)
-    // })
+    electron_1.ipcMain.on('send-ans', (event, value) => {
+        mainWindow.webContents.send('set-answer', value.answer);
+    });
     mainWindow.loadFile('../index.html');
     // mainWindow.webContents.openDevTools()
 }
@@ -52,13 +52,13 @@ electron_1.app.whenReady().then(() => {
         }
     });
     childWindow.hide();
-    // ipcMain.on('send-title-child', (event,value:any) => {
-    //   childWindow.loadFile('../child.html').then(() => {
-    //     childWindow.webContents.send('set-title-child',value.title)
-    //   })
-    //   childWindow.show()
-    //   // childWindow.webContents.openDevTools()
-    // })
+    electron_1.ipcMain.on('send-title-child', (event, value) => {
+        childWindow.loadFile('../child.html').then(() => {
+            childWindow.webContents.send('set-title-child', value.title);
+        });
+        childWindow.show();
+        // childWindow.webContents.openDevTools()
+    });
     for (let i = 0; i < 3; i++) {
         electron_1.ipcMain.on(`show-answer-${i + 1}`, (event, value) => {
             childWindow.loadFile('../child.html').then(() => {

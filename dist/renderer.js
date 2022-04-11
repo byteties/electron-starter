@@ -1,17 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
-// const setButton = document.getElementById('set')
-// setButton?.addEventListener('click', () => {
-//     const title = (<HTMLInputElement>document.getElementById('title')).value
-//     ipcRenderer.send('send-title-child',{title})
-// });
-// ipcRenderer.on('set-answer',(event,answer:any)=>{
-//     const text = document.getElementById('answer')
-//     if(text){
-//         text.innerText = `Answer :${answer}`
-//     }
-// })
+const setButton = document.getElementById('set');
+setButton === null || setButton === void 0 ? void 0 : setButton.addEventListener('click', () => {
+    const title = document.getElementById('title').value;
+    electron_1.ipcRenderer.send('send-title-child', { title });
+});
+electron_1.ipcRenderer.on('set-answer', (event, answer) => {
+    const text = document.getElementById('answer');
+    if (text) {
+        text.innerText = `Answer :${answer}`;
+    }
+});
 for (let i = 0; i < 3; i++) {
     const textElement = document.getElementById(`question-${i + 1}`);
     let answer = '';
