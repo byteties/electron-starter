@@ -1,7 +1,7 @@
 import { app, BrowserWindow,ipcMain,ipcRenderer } from "electron";
 import * as path from "path";
 
-function createWindow () {
+const createWindow =()=> {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -17,7 +17,7 @@ function createWindow () {
   })
 
   mainWindow.loadFile('../index.html')
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 }
 
 app.whenReady().then(() => {

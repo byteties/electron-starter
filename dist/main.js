@@ -25,7 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
-function createWindow() {
+const createWindow = () => {
     const mainWindow = new electron_1.BrowserWindow({
         width: 800,
         height: 600,
@@ -39,8 +39,8 @@ function createWindow() {
         mainWindow.webContents.send('set-answer', value.answer);
     });
     mainWindow.loadFile('../index.html');
-    // mainWindow.webContents.openDevTools()
-}
+    mainWindow.webContents.openDevTools();
+};
 electron_1.app.whenReady().then(() => {
     createWindow();
     const childWindow = new electron_1.BrowserWindow({
