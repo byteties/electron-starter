@@ -10,11 +10,5 @@ electron_1.ipcRenderer.on('set-title-child', (event, title) => {
 const sendButton = document.getElementById('send');
 sendButton === null || sendButton === void 0 ? void 0 : sendButton.addEventListener('click', () => {
     const answer = document.getElementById('answer').value;
-    electron_1.ipcRenderer.send('send-ans', { answer });
+    electron_1.ipcRenderer.send('send-answer', answer);
 });
-// ipcRenderer.on('set-title-child',(event,text:any)=>{
-//     const textElement = document.getElementById('answer')
-//     if(textElement){
-//         textElement.innerText = 'Answer : '+text
-//     }
-// })

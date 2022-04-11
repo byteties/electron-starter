@@ -25,48 +25,52 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
+const constants_1 = require("./constants");
 const createWindow = () => {
     const mainWindow = new electron_1.BrowserWindow({
-        width: 800,
-        height: 600,
+        width: constants_1.MAIN_WIDTH,
+        height: constants_1.MAIN_HEIGHT,
         webPreferences: {
             preload: path.join(__dirname, '../dist/preload.js'),
             nodeIntegration: true,
             contextIsolation: false,
         }
     });
-    electron_1.ipcMain.on('send-ans', (event, value) => {
-        mainWindow.webContents.send('set-answer', value.answer);
+    electron_1.ipcMain.on(constants_1.SEND_ANSWER, (event, value) => {
+        mainWindow.webContents.send(constants_1.SET_ANSWER, value);
     });
     mainWindow.loadFile('../index.html');
     mainWindow.webContents.openDevTools();
 };
-electron_1.app.whenReady().then(() => {
-    createWindow();
+const createChildWindow = () => {
     const childWindow = new electron_1.BrowserWindow({
-        width: 1000,
-        height: 500,
+        width: constants_1.CHILD_WIDTH,
+        height: constants_1.CHILD_HEIGHT,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
         }
     });
     childWindow.hide();
-    electron_1.ipcMain.on('send-title-child', (event, value) => {
+    electron_1.ipcMain.on(constants_1.SEND_TITLE_CHILD, (event, value) => {
         childWindow.loadFile('../child.html').then(() => {
-            childWindow.webContents.send('set-title-child', value.title);
+            childWindow.webContents.send(constants_1.SET_TITLE_ANSWER, value);
         });
         childWindow.show();
-        // childWindow.webContents.openDevTools()
+        childWindow.webContents.openDevTools();
     });
     for (let i = 0; i < 3; i++) {
-        electron_1.ipcMain.on(`show-answer-${i + 1}`, (event, value) => {
+        electron_1.ipcMain.on(`${constants_1.SHOW_ANSWER}${i + 1}`, (event, value) => {
             childWindow.loadFile('../child.html').then(() => {
-                childWindow.webContents.send('set-title-child', value);
+                childWindow.webContents.send(constants_1.SET_TITLE_ANSWER, value);
             });
             childWindow.show();
         });
     }
+};
+electron_1.app.whenReady().then(() => {
+    createWindow();
+    createChildWindow();
     electron_1.app.on('activate', function () {
         if (electron_1.BrowserWindow.getAllWindows().length === 0)
             createWindow();

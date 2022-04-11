@@ -12,12 +12,5 @@ const sendButton = document.getElementById('send')
 
 sendButton?.addEventListener('click', () => {
     const answer = (<HTMLInputElement>document.getElementById('answer')).value
-    ipcRenderer.send('send-ans',{answer})
+    ipcRenderer.send('send-answer',answer)
 });
-
-// ipcRenderer.on('set-title-child',(event,text:any)=>{
-//     const textElement = document.getElementById('answer')
-//     if(textElement){
-//         textElement.innerText = 'Answer : '+text
-//     }
-// })
