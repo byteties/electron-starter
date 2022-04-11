@@ -21,6 +21,15 @@ const createWindow =()=> {
   // mainWindow.webContents.openDevTools()
 }
 
+const childEvent = (win: BrowserWindow,triggerEvent:string,sendEvent:string) => {
+  ipcMain.on(triggerEvent, (event,value:string) => {
+    win.loadFile('../child.html').then(() => {
+      win.webContents.send(sendEvent,value)
+    })
+    win.show()
+  })
+}
+
 const createChildWindow = () =>{
   const childWindow = new BrowserWindow({
     width: CHILD_WIDTH,
@@ -31,23 +40,12 @@ const createChildWindow = () =>{
     }
   })
   childWindow.hide()
-
-  ipcMain.on(SEND_TITLE_CHILD, (event,value:string) => {
-    childWindow.loadFile('../child.html').then(() => {
-      childWindow.webContents.send(SET_TITLE_CHILD,value)
-    })
-    childWindow.show()
     // childWindow.webContents.openDevTools()
-  })
 
-  for (let i = 0; i < 3; i++) {
-    ipcMain.on(`${SHOW_ANSWER}${i+1}`, (event,value:string) => {
-        childWindow.loadFile('../child.html').then(() => {
-          childWindow.webContents.send(SET_TITLE_CHILD,value)
-        })
-        childWindow.show()
-    })
-  }
+  childEvent(childWindow,SEND_TITLE_CHILD,SET_TITLE_CHILD)
+  childEvent(childWindow,`${SHOW_ANSWER}1`,SET_TITLE_CHILD)
+  childEvent(childWindow,`${SHOW_ANSWER}2`,SET_TITLE_CHILD)
+  childEvent(childWindow,`${SHOW_ANSWER}3`,SET_TITLE_CHILD)
 }
 
 app.whenReady().then(() => {

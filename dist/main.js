@@ -42,6 +42,14 @@ const createWindow = () => {
     mainWindow.loadFile('../index.html');
     // mainWindow.webContents.openDevTools()
 };
+const childEvent = (win, triggerEvent, sendEvent) => {
+    electron_1.ipcMain.on(triggerEvent, (event, value) => {
+        win.loadFile('../child.html').then(() => {
+            win.webContents.send(sendEvent, value);
+        });
+        win.show();
+    });
+};
 const createChildWindow = () => {
     const childWindow = new electron_1.BrowserWindow({
         width: constants_1.CHILD_WIDTH,
@@ -52,21 +60,11 @@ const createChildWindow = () => {
         }
     });
     childWindow.hide();
-    electron_1.ipcMain.on(constants_1.SEND_TITLE_CHILD, (event, value) => {
-        childWindow.loadFile('../child.html').then(() => {
-            childWindow.webContents.send(constants_1.SET_TITLE_CHILD, value);
-        });
-        childWindow.show();
-        // childWindow.webContents.openDevTools()
-    });
-    for (let i = 0; i < 3; i++) {
-        electron_1.ipcMain.on(`${constants_1.SHOW_ANSWER}${i + 1}`, (event, value) => {
-            childWindow.loadFile('../child.html').then(() => {
-                childWindow.webContents.send(constants_1.SET_TITLE_CHILD, value);
-            });
-            childWindow.show();
-        });
-    }
+    // childWindow.webContents.openDevTools()
+    childEvent(childWindow, constants_1.SEND_TITLE_CHILD, constants_1.SET_TITLE_CHILD);
+    childEvent(childWindow, `${constants_1.SHOW_ANSWER}1`, constants_1.SET_TITLE_CHILD);
+    childEvent(childWindow, `${constants_1.SHOW_ANSWER}2`, constants_1.SET_TITLE_CHILD);
+    childEvent(childWindow, `${constants_1.SHOW_ANSWER}3`, constants_1.SET_TITLE_CHILD);
 };
 electron_1.app.whenReady().then(() => {
     createWindow();
