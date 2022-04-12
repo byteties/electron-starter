@@ -1,9 +1,11 @@
 
 import { ipcRenderer } from 'electron'
+import axios from 'axios'
 
 const SET_ANSWER = 'set-answer'
 const SEND_TITLE_CHILD = 'send-title-child'
 const SHOW_ANSWER = 'show-answer-'
+const BASE_URL = 'http://localhost:8000'
 
 const setButton = document.getElementById('set')
 
@@ -19,19 +21,15 @@ ipcRenderer.on(SET_ANSWER,(event,answer:string)=>{
     }
 })
 
-for (let i = 0; i < 3; i++) {
-    const textElement = document.getElementById(`question-${i+1}`)
-    let answer = ''
-    if(i === 0){
-        answer = 'Heaven'
-    } else if (i === 1){
-        answer = 'Earth'
-    } else if (i === 2){
-        answer = 'Heart'
-    } else {
-        answer = ''
+axios.get(`${BASE_URL}/questions`)
+  .then((res)=> {
+    for(let i=0; i< res.data.length; i++){
+        const textElement = document.getElementById(`question-${i+1}`)
+        if(textElement){
+            textElement.innerText = res.data[i]
+        }
+        textElement?.addEventListener('click', () => {
+            ipcRenderer.send(`${SHOW_ANSWER}${i+1}`,i)
+        });
     }
-    textElement?.addEventListener('click', () => {
-        ipcRenderer.send(`${SHOW_ANSWER}${i+1}`,answer)
-    });
-}
+  })

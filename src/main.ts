@@ -1,6 +1,9 @@
 import { app, BrowserWindow,ipcMain } from "electron";
+import axios from 'axios'
 import * as path from "path";
-import { MAIN_HEIGHT,MAIN_WIDTH,CHILD_HEIGHT,CHILD_WIDTH,SEND_ANSWER,SET_ANSWER,SEND_TITLE_CHILD,SHOW_ANSWER,SET_TITLE_CHILD } from './constants'
+import { MAIN_HEIGHT,MAIN_WIDTH,CHILD_HEIGHT,CHILD_WIDTH,
+  SEND_ANSWER,SET_ANSWER,SEND_TITLE_CHILD,
+  SHOW_ANSWER,SET_TITLE_CHILD,BASE_URL } from './constants'
 
 const createWindow =()=> {
   const mainWindow = new BrowserWindow({
@@ -22,7 +25,11 @@ const createWindow =()=> {
 }
 
 const childEvent = (win: BrowserWindow,triggerEvent:string,sendEvent:string) => {
-  ipcMain.on(triggerEvent, (event,value:string) => {
+  ipcMain.on(triggerEvent, async (event,value:string) => {
+    if(Number.isInteger(Number(value))){
+      const res = await axios.get(`${BASE_URL}/answer/${value}`)
+      value = res.data
+    }
     win.loadFile('../child.html').then(() => {
       win.webContents.send(sendEvent,value)
     })
@@ -40,7 +47,7 @@ const createChildWindow = () =>{
     }
   })
   childWindow.hide()
-    // childWindow.webContents.openDevTools()
+  childWindow.webContents.openDevTools()
 
   childEvent(childWindow,SEND_TITLE_CHILD,SET_TITLE_CHILD)
   childEvent(childWindow,`${SHOW_ANSWER}1`,SET_TITLE_CHILD)
