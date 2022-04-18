@@ -26,12 +26,12 @@ const createWindow = ()=> {
 const triggerChildEvent = async (win: BrowserWindow,mainEvent:string,childEvent:string) => {
   ipcMain.on(mainEvent, async (event,value:string) => {
     const newValue = await getAnswer(value)
-    if(newValue){
-      win.loadFile('../child.html').then(() => {
+    win.loadFile('../child.html').then(() => {
+      if(newValue){
         win.webContents.send(childEvent,newValue)
-      })
-      win.show()
-    }
+      }
+    })
+    win.show()
   })
 }
 
