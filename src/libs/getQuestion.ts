@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { BASE_URL,SHOW_ANSWER } from '../constants'
+import { BASE_URL,SHOW_ANSWER,QUESTION_NO } from '../constants'
 
 const getQuestion = async() =>{
   try{
@@ -7,7 +7,7 @@ const getQuestion = async() =>{
     const data = []
     for(let i=0; i< res.data.length; i++){
       data.push({
-        id:`question-${i+1}`,
+        id:`${QUESTION_NO}${i+1}`,
         event: `${SHOW_ANSWER}${i+1}`,
         value: res.data[i]
       })
