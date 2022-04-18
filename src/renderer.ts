@@ -4,8 +4,6 @@ import axios from 'axios'
 
 const SET_ANSWER = 'set-answer'
 const SEND_TITLE_CHILD = 'send-title-child'
-const SHOW_ANSWER = 'show-answer-'
-const BASE_URL = 'http://localhost:8000'
 
 const setButton = document.getElementById('set')
 
@@ -21,15 +19,15 @@ ipcRenderer.on(SET_ANSWER,(event,answer:string)=>{
     }
 })
 
-axios.get(`${BASE_URL}/questions`)
-  .then((res)=> {
-    for(let i=0; i< res.data.length; i++){
-        const textElement = document.getElementById(`question-${i+1}`)
-        if(textElement){
-            textElement.innerText = res.data[i]
-        }
-        textElement?.addEventListener('click', () => {
-            ipcRenderer.send(`${SHOW_ANSWER}${i+1}`,i)
-        });
-    }
-  })
+// axios.get(`${BASE_URL}/questions`)
+//   .then((res)=> {
+    // for(let i=0; i< res.data.length; i++){
+    //     const textElement = document.getElementById(`question-${i+1}`)
+    //     if(textElement){
+    //         textElement.innerText = res.data[i]
+    //     }
+    //     textElement?.addEventListener('click', () => {
+    //         ipcRenderer.send(`${SHOW_ANSWER}${i+1}`,i)
+    //     });
+    // }
+//   })

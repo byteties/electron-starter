@@ -1,11 +1,11 @@
 import { app, BrowserWindow,ipcMain } from "electron";
-import axios from 'axios'
 import * as path from "path";
+import getAnswer from "./libs/getAnswer";
 import { MAIN_HEIGHT,MAIN_WIDTH,CHILD_HEIGHT,CHILD_WIDTH,
   SEND_ANSWER,SET_ANSWER,SEND_TITLE_CHILD,
-  SHOW_ANSWER,SET_TITLE_CHILD,BASE_URL } from './constants'
+  SHOW_ANSWER,SET_TITLE_CHILD } from './constants'
 
-const createWindow =()=> {
+const createWindow = ()=> {
   const mainWindow = new BrowserWindow({
     width: MAIN_WIDTH,
     height: MAIN_HEIGHT,
@@ -15,29 +15,27 @@ const createWindow =()=> {
       contextIsolation: false,
     }
   })
-
   ipcMain.on(SEND_ANSWER, (event,value:string) => {
     mainWindow.webContents.send(SET_ANSWER,value)
   })
 
   mainWindow.loadFile('../index.html')
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 }
 
-const childEvent = (win: BrowserWindow,triggerEvent:string,sendEvent:string) => {
-  ipcMain.on(triggerEvent, async (event,value:string) => {
-    if(Number.isInteger(Number(value))){
-      const res = await axios.get(`${BASE_URL}/answer/${value}`)
-      value = res.data
+const triggerChildEvent = async (win: BrowserWindow,mainEvent:string,childEvent:string) => {
+  ipcMain.on(mainEvent, async (event,value:string) => {
+    const newValue = await getAnswer(value)
+    if(newValue){
+      win.loadFile('../child.html').then(() => {
+        win.webContents.send(childEvent,newValue)
+      })
+      win.show()
     }
-    win.loadFile('../child.html').then(() => {
-      win.webContents.send(sendEvent,value)
-    })
-    win.show()
   })
 }
 
-const createChildWindow = () =>{
+const createChildWindow = async() =>{
   const childWindow = new BrowserWindow({
     width: CHILD_WIDTH,
     height: CHILD_HEIGHT,
@@ -49,14 +47,14 @@ const createChildWindow = () =>{
   childWindow.hide()
   childWindow.webContents.openDevTools()
 
-  childEvent(childWindow,SEND_TITLE_CHILD,SET_TITLE_CHILD)
-  childEvent(childWindow,`${SHOW_ANSWER}1`,SET_TITLE_CHILD)
-  childEvent(childWindow,`${SHOW_ANSWER}2`,SET_TITLE_CHILD)
-  childEvent(childWindow,`${SHOW_ANSWER}3`,SET_TITLE_CHILD)
+  await triggerChildEvent(childWindow,SEND_TITLE_CHILD,SET_TITLE_CHILD)
+  await triggerChildEvent(childWindow,`${SHOW_ANSWER}1`,SET_TITLE_CHILD)
+  await triggerChildEvent(childWindow,`${SHOW_ANSWER}2`,SET_TITLE_CHILD)
+  await triggerChildEvent(childWindow,`${SHOW_ANSWER}3`,SET_TITLE_CHILD)
 }
 
-app.whenReady().then(() => {
-  createWindow()
+app.whenReady().then(async () => {
+  await createWindow()
   createChildWindow()
   
   app.on('activate', function () {
