@@ -18,7 +18,7 @@ const getQuestion_1 = __importDefault(require("./libs/getQuestion"));
 window.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, void 0, function* () {
     const divQuestion = document.getElementById(constants_1.QUESTION_DIV);
     const question = yield (0, getQuestion_1.default)();
-    const ul = document.createElement("question-list");
+    const ul = document.createElement(constants_1.QUESTION_LIST);
     if (question) {
         for (let i = 0; i < question.length; i++) {
             const { id, event, value } = question[i];

@@ -39,7 +39,7 @@ const electron_1 = require("electron");
 const path = __importStar(require("path"));
 const getAnswer_1 = __importDefault(require("./libs/getAnswer"));
 const constants_1 = require("./constants");
-const createWindow = () => __awaiter(void 0, void 0, void 0, function* () {
+const createWindow = () => {
     const mainWindow = new electron_1.BrowserWindow({
         width: constants_1.MAIN_WIDTH,
         height: constants_1.MAIN_HEIGHT,
@@ -54,16 +54,24 @@ const createWindow = () => __awaiter(void 0, void 0, void 0, function* () {
     });
     mainWindow.loadFile('../index.html');
     mainWindow.webContents.openDevTools();
-});
-const triggerChildEvent = (win, mainEvent, childEvent) => __awaiter(void 0, void 0, void 0, function* () {
-    electron_1.ipcMain.on(mainEvent, (event, value) => __awaiter(void 0, void 0, void 0, function* () {
+};
+const sendTextToMain = (win) => {
+    electron_1.ipcMain.on(constants_1.SEND_TITLE_CHILD, (event, value) => __awaiter(void 0, void 0, void 0, function* () {
+        win.loadFile('../child.html').then(() => {
+            win.webContents.send(constants_1.SET_TITLE_CHILD, value);
+        });
+        win.show();
+    }));
+};
+const showAnswer = (win) => __awaiter(void 0, void 0, void 0, function* () {
+    electron_1.ipcMain.on(constants_1.SHOW_ANSWER, (event, value) => __awaiter(void 0, void 0, void 0, function* () {
         const newValue = yield (0, getAnswer_1.default)(value);
-        if (newValue) {
-            win.loadFile('../child.html').then(() => {
-                win.webContents.send(childEvent, newValue);
-            });
-            win.show();
-        }
+        win.loadFile('../child.html').then(() => {
+            if (newValue) {
+                win.webContents.send(constants_1.SET_TITLE_CHILD, newValue);
+            }
+        });
+        win.show();
     }));
 });
 const createChildWindow = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -77,14 +85,12 @@ const createChildWindow = () => __awaiter(void 0, void 0, void 0, function* () {
     });
     childWindow.hide();
     childWindow.webContents.openDevTools();
-    yield triggerChildEvent(childWindow, constants_1.SEND_TITLE_CHILD, constants_1.SET_TITLE_CHILD);
-    yield triggerChildEvent(childWindow, `${constants_1.SHOW_ANSWER}1`, constants_1.SET_TITLE_CHILD);
-    yield triggerChildEvent(childWindow, `${constants_1.SHOW_ANSWER}2`, constants_1.SET_TITLE_CHILD);
-    yield triggerChildEvent(childWindow, `${constants_1.SHOW_ANSWER}3`, constants_1.SET_TITLE_CHILD);
+    yield sendTextToMain(childWindow);
+    yield showAnswer(childWindow);
 });
 electron_1.app.whenReady().then(() => __awaiter(void 0, void 0, void 0, function* () {
     yield createWindow();
-    yield createChildWindow();
+    createChildWindow();
     electron_1.app.on('activate', function () {
         if (electron_1.BrowserWindow.getAllWindows().length === 0)
             createWindow();

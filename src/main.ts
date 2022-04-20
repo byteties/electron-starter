@@ -1,4 +1,4 @@
-import { app, BrowserWindow,ipcMain } from "electron";
+import { app, BrowserWindow,ipcMain,webContents } from "electron";
 import * as path from "path";
 import getAnswer from "./libs/getAnswer";
 import { MAIN_HEIGHT,MAIN_WIDTH,CHILD_HEIGHT,CHILD_WIDTH,
@@ -15,6 +15,7 @@ const createWindow = ()=> {
       contextIsolation: false,
     }
   })
+
   ipcMain.on(SEND_ANSWER, (event,value:string) => {
     mainWindow.webContents.send(SET_ANSWER,value)
   })
@@ -23,17 +24,27 @@ const createWindow = ()=> {
   mainWindow.webContents.openDevTools()
 }
 
-const triggerChildEvent = async (win: BrowserWindow,mainEvent:string,childEvent:string) => {
-  ipcMain.on(mainEvent, async (event,value:string) => {
+const sendTextToMain = (win: BrowserWindow) =>{
+  ipcMain.on(SEND_TITLE_CHILD, async (event,value:string) => {
+    win.loadFile('../child.html').then(() => {
+      win.webContents.send(SET_TITLE_CHILD,value)
+    })
+    win.show()
+  })
+}
+
+const showAnswer = async (win: BrowserWindow) => {
+  ipcMain.on(SHOW_ANSWER, async (event,value:string) => {
     const newValue = await getAnswer(value)
     win.loadFile('../child.html').then(() => {
       if(newValue){
-        win.webContents.send(childEvent,newValue)
+        win.webContents.send(SET_TITLE_CHILD,newValue)
       }
     })
     win.show()
   })
 }
+
 
 const createChildWindow = async() =>{
   const childWindow = new BrowserWindow({
@@ -47,10 +58,8 @@ const createChildWindow = async() =>{
   childWindow.hide()
   childWindow.webContents.openDevTools()
 
-  await triggerChildEvent(childWindow,SEND_TITLE_CHILD,SET_TITLE_CHILD)
-  await triggerChildEvent(childWindow,`${SHOW_ANSWER}1`,SET_TITLE_CHILD)
-  await triggerChildEvent(childWindow,`${SHOW_ANSWER}2`,SET_TITLE_CHILD)
-  await triggerChildEvent(childWindow,`${SHOW_ANSWER}3`,SET_TITLE_CHILD)
+  await sendTextToMain(childWindow)
+  await showAnswer(childWindow)
 }
 
 app.whenReady().then(async () => {

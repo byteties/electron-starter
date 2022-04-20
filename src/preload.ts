@@ -1,11 +1,11 @@
 import { ipcRenderer } from "electron";
-import { QUESTION_DIV } from './constants'
+import { QUESTION_DIV,QUESTION_LIST } from './constants'
 import getQuestion from "./libs/getQuestion";
 
 window.addEventListener('DOMContentLoaded', async() => {
   const divQuestion = document.getElementById(QUESTION_DIV)
   const question = await getQuestion()
-  const ul = document.createElement("question-list");
+  const ul = document.createElement(QUESTION_LIST);
   
   if(question){
     for(let i=0;i < question.length; i++){

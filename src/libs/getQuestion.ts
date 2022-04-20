@@ -8,7 +8,7 @@ const getQuestion = async() =>{
     for(let i=0; i< res.data.length; i++){
       data.push({
         id:`${QUESTION_NO}${i+1}`,
-        event: `${SHOW_ANSWER}${i+1}`,
+        event: SHOW_ANSWER,
         value: res.data[i]
       })
     }
