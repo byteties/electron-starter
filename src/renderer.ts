@@ -1,9 +1,12 @@
 
 import { ipcRenderer } from 'electron'
-import axios from 'axios'
+// import * as remote from '@electron/remote';
+// const remoteMain = remote.require("@electron/remote/main");
+// remoteMain.initialize();
 
 const SET_ANSWER = 'set-answer'
 const SEND_TITLE_CHILD = 'send-title-child'
+const TRIGGER_CLOSE = 'trigger-close'
 
 const setButton = document.getElementById('set')
 
@@ -19,15 +22,10 @@ ipcRenderer.on(SET_ANSWER,(event,answer:string)=>{
     }
 })
 
-// axios.get(`${BASE_URL}/questions`)
-//   .then((res)=> {
-    // for(let i=0; i< res.data.length; i++){
-    //     const textElement = document.getElementById(`question-${i+1}`)
-    //     if(textElement){
-    //         textElement.innerText = res.data[i]
-    //     }
-    //     textElement?.addEventListener('click', () => {
-    //         ipcRenderer.send(`${SHOW_ANSWER}${i+1}`,i)
-    //     });
-    // }
-//   })
+
+ipcRenderer.on(TRIGGER_CLOSE,(event)=>{
+    console.log('------------ 0')
+    // const window = remote.getCurrentWindow()
+    // console.log('------------')
+    // console.log(window)
+})

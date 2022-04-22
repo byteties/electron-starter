@@ -14,14 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const constants_1 = require("./constants");
-const getQuestion_1 = __importDefault(require("./libs/getQuestion"));
+const getQuestions_1 = __importDefault(require("./libs/getQuestions"));
 window.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, void 0, function* () {
     const divQuestion = document.getElementById(constants_1.QUESTION_DIV);
-    const question = yield (0, getQuestion_1.default)();
+    const questions = yield (0, getQuestions_1.default)();
     const ul = document.createElement(constants_1.QUESTION_LIST);
-    if (question) {
-        for (let i = 0; i < question.length; i++) {
-            const { id, event, value } = question[i];
+    if (questions) {
+        for (let i = 0; i < questions.length; i++) {
+            const { id, event, value } = questions[i];
             const li = document.createElement("li");
             li.setAttribute("id", id);
             li === null || li === void 0 ? void 0 : li.addEventListener('click', () => {

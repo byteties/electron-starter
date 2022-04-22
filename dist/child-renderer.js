@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const SEND_ANSWER = 'send-answer';
-const SET_TITLE_CHILD = 'set-title-child';
-electron_1.ipcRenderer.on(SET_TITLE_CHILD, (event, title) => {
+const SET_TITLE_ANSWER_WIN = 'set-title-answer';
+electron_1.ipcRenderer.on(SET_TITLE_ANSWER_WIN, (event, title) => {
     const text = document.getElementById('question');
     if (text) {
         text.innerText = title;

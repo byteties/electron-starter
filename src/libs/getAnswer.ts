@@ -1,13 +1,27 @@
 import axios from 'axios'
 import { BASE_URL } from '../constants'
 
-const getAnswer = async(value:string) =>{
+interface Answer {
+  date: string;
+  isApiSuccess: boolean
+}
+
+const getAnswer = async(value:string): Promise<Answer | null> =>{
   try{
+    let answer:Answer
     if(Number.isInteger(Number(value))){
       const res = await axios.get(`${BASE_URL}/answer/${value}`)
-      return res.data
+      answer = {
+        date:res.data,
+        isApiSuccess: true
+      }
+      return answer
     }
-    return null
+    answer = {
+      date: value,
+      isApiSuccess: false
+    }
+    return answer
   }catch(e){
     console.error('Error',e)
     return null

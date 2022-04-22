@@ -1,9 +1,9 @@
 import { ipcRenderer } from "electron";
 
 const SEND_ANSWER = 'send-answer'
-const SET_TITLE_CHILD = 'set-title-child'
+const SET_TITLE_ANSWER_WIN = 'set-title-answer'
 
-ipcRenderer.on(SET_TITLE_CHILD,(event,title:string)=>{
+ipcRenderer.on(SET_TITLE_ANSWER_WIN,(event,title:string)=>{
     const text = document.getElementById('question')
     if(text){
         text.innerText = title

@@ -36,64 +36,73 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
+const remote_1 = __importDefault(require("@electron/remote"));
 const path = __importStar(require("path"));
 const getAnswer_1 = __importDefault(require("./libs/getAnswer"));
 const constants_1 = require("./constants");
-const createWindow = () => {
-    const mainWindow = new electron_1.BrowserWindow({
-        width: constants_1.MAIN_WIDTH,
-        height: constants_1.MAIN_HEIGHT,
+require('@electron/remote/main').initialize();
+const createQuestionWindow = () => {
+    const questionWindow = new remote_1.default.BrowserWindow({
+        width: constants_1.QUESTION_WIDTH,
+        height: constants_1.QUESTION_HEIGHT,
         webPreferences: {
             preload: path.join(__dirname, '../dist/preload.js'),
             nodeIntegration: true,
             contextIsolation: false,
+            // enableRemoteModule: true
         }
     });
-    electron_1.ipcMain.on(constants_1.SEND_ANSWER, (event, value) => {
-        mainWindow.webContents.send(constants_1.SET_ANSWER, value);
-    });
-    mainWindow.loadFile('../index.html');
-    mainWindow.webContents.openDevTools();
+    questionWindow.loadFile('../index.html');
+    questionWindow.webContents.openDevTools();
+    return questionWindow;
 };
-const sendTextToMain = (win) => {
-    electron_1.ipcMain.on(constants_1.SEND_TITLE_CHILD, (event, value) => __awaiter(void 0, void 0, void 0, function* () {
+const sendTextToQuestionWindow = (win) => {
+    electron_1.ipcMain.on(constants_1.SEND_TITLE_ANSWER_WIN, (event, text) => {
         win.loadFile('../child.html').then(() => {
-            win.webContents.send(constants_1.SET_TITLE_CHILD, value);
+            win.webContents.send(constants_1.SET_TITLE_ANSWER_WIN, text);
         });
         win.show();
-    }));
+    });
 };
-const showAnswer = (win) => __awaiter(void 0, void 0, void 0, function* () {
-    electron_1.ipcMain.on(constants_1.SHOW_ANSWER, (event, value) => __awaiter(void 0, void 0, void 0, function* () {
-        const newValue = yield (0, getAnswer_1.default)(value);
-        win.loadFile('../child.html').then(() => {
-            if (newValue) {
-                win.webContents.send(constants_1.SET_TITLE_CHILD, newValue);
+const showAndAutoHideAnswerWindow = (answerWindow, questionWindow) => __awaiter(void 0, void 0, void 0, function* () {
+    electron_1.ipcMain.on(constants_1.SHOW_ANSWER, (event, index) => __awaiter(void 0, void 0, void 0, function* () {
+        const answer = yield (0, getAnswer_1.default)(index);
+        answerWindow.loadFile('../child.html').then(() => {
+            if (answer === null || answer === void 0 ? void 0 : answer.isApiSuccess) {
+                answerWindow.webContents.send(constants_1.SET_TITLE_ANSWER_WIN, answer.date);
             }
         });
-        win.show();
+        answerWindow.show();
+        setTimeout(() => {
+            questionWindow.webContents.send(constants_1.TRIGGER_CLOSE);
+        }, constants_1.TIMEOUT_CLOSE);
     }));
 });
-const createChildWindow = () => __awaiter(void 0, void 0, void 0, function* () {
-    const childWindow = new electron_1.BrowserWindow({
-        width: constants_1.CHILD_WIDTH,
-        height: constants_1.CHILD_HEIGHT,
+const createAnswerWindow = () => {
+    const answerWindow = new remote_1.default.BrowserWindow({
+        width: constants_1.ANSWER_WIN_WIDTH,
+        height: constants_1.ANSWER_WIN_HEIGHT,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false,
+            contextIsolation: false
         }
     });
-    childWindow.hide();
-    childWindow.webContents.openDevTools();
-    yield sendTextToMain(childWindow);
-    yield showAnswer(childWindow);
-});
+    answerWindow.hide();
+    answerWindow.webContents.openDevTools();
+    return answerWindow;
+};
 electron_1.app.whenReady().then(() => __awaiter(void 0, void 0, void 0, function* () {
-    yield createWindow();
-    createChildWindow();
+    const questionWindow = createQuestionWindow();
+    electron_1.ipcMain.on(constants_1.SEND_ANSWER, (event, answer) => {
+        questionWindow.webContents.send(constants_1.SET_ANSWER, answer);
+    });
+    const answerWindow = createAnswerWindow();
+    // enableRemote(answerWindow.webContents);
+    yield sendTextToQuestionWindow(answerWindow);
+    yield showAndAutoHideAnswerWindow(answerWindow, questionWindow);
     electron_1.app.on('activate', function () {
         if (electron_1.BrowserWindow.getAllWindows().length === 0)
-            createWindow();
+            createQuestionWindow();
     });
 }));
 electron_1.app.on('window-all-closed', function () {

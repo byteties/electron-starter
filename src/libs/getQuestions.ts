@@ -1,10 +1,17 @@
 import axios from 'axios'
 import { BASE_URL,SHOW_ANSWER,QUESTION_NO } from '../constants'
 
-const getQuestion = async() =>{
+interface Question {
+  id: string;
+  event: string;
+  value: string;
+}
+
+const getQuestions = async(): Promise<Question[] | null> =>{
   try{
     const res = await axios.get(`${BASE_URL}/questions/`)
     const data = []
+    
     for(let i=0; i< res.data.length; i++){
       data.push({
         id:`${QUESTION_NO}${i+1}`,
@@ -19,4 +26,4 @@ const getQuestion = async() =>{
   }
 }
 
-export default getQuestion
+export default getQuestions

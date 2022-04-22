@@ -1,73 +1,87 @@
-import { app, BrowserWindow,ipcMain,webContents } from "electron";
+import { app,BrowserWindow,ipcMain } from "electron";
+import remote from '@electron/remote'
+import { initialize, enable as enableRemote } from "@electron/remote/main";
 import * as path from "path";
 import getAnswer from "./libs/getAnswer";
-import { MAIN_HEIGHT,MAIN_WIDTH,CHILD_HEIGHT,CHILD_WIDTH,
-  SEND_ANSWER,SET_ANSWER,SEND_TITLE_CHILD,
-  SHOW_ANSWER,SET_TITLE_CHILD } from './constants'
+import { QUESTION_HEIGHT,QUESTION_WIDTH,ANSWER_WIN_WIDTH,ANSWER_WIN_HEIGHT,
+  SEND_ANSWER,SET_ANSWER,SEND_TITLE_ANSWER_WIN,
+  SHOW_ANSWER,SET_TITLE_ANSWER_WIN,TRIGGER_CLOSE,TIMEOUT_CLOSE } from './constants'
 
-const createWindow = ()=> {
-  const mainWindow = new BrowserWindow({
-    width: MAIN_WIDTH,
-    height: MAIN_HEIGHT,
+require('@electron/remote/main').initialize()
+
+const createQuestionWindow = ():BrowserWindow => {
+  const questionWindow: BrowserWindow = new remote.BrowserWindow({
+    width: QUESTION_WIDTH,
+    height: QUESTION_HEIGHT,
     webPreferences: {
       preload: path.join(__dirname, '../dist/preload.js'),
       nodeIntegration: true,
       contextIsolation: false,
+      // enableRemoteModule: true
     }
   })
 
-  ipcMain.on(SEND_ANSWER, (event,value:string) => {
-    mainWindow.webContents.send(SET_ANSWER,value)
-  })
-
-  mainWindow.loadFile('../index.html')
-  mainWindow.webContents.openDevTools()
+  questionWindow.loadFile('../index.html')
+  questionWindow.webContents.openDevTools()
+  return questionWindow
 }
 
-const sendTextToMain = (win: BrowserWindow) =>{
-  ipcMain.on(SEND_TITLE_CHILD, async (event,value:string) => {
+const sendTextToQuestionWindow = (win: BrowserWindow):void =>{
+  ipcMain.on(SEND_TITLE_ANSWER_WIN, (event,text:string) => {
     win.loadFile('../child.html').then(() => {
-      win.webContents.send(SET_TITLE_CHILD,value)
+      win.webContents.send(SET_TITLE_ANSWER_WIN,text)
     })
     win.show()
   })
 }
 
-const showAnswer = async (win: BrowserWindow) => {
-  ipcMain.on(SHOW_ANSWER, async (event,value:string) => {
-    const newValue = await getAnswer(value)
-    win.loadFile('../child.html').then(() => {
-      if(newValue){
-        win.webContents.send(SET_TITLE_CHILD,newValue)
+const showAndAutoHideAnswerWindow = async (answerWindow: BrowserWindow,questionWindow:BrowserWindow):Promise<void> => {
+  ipcMain.on(SHOW_ANSWER, async (event,index:string) => {
+    const answer = await getAnswer(index)
+    answerWindow.loadFile('../child.html').then(() => {
+      if(answer?.isApiSuccess){
+        answerWindow.webContents.send(SET_TITLE_ANSWER_WIN,answer.date)
       }
     })
-    win.show()
+    answerWindow.show()
+
+    setTimeout(()=>{
+      questionWindow.webContents.send(TRIGGER_CLOSE)
+    },TIMEOUT_CLOSE)
   })
 }
 
-
-const createChildWindow = async() =>{
-  const childWindow = new BrowserWindow({
-    width: CHILD_WIDTH,
-    height: CHILD_HEIGHT,
+const createAnswerWindow = ():BrowserWindow =>{
+  const answerWindow: BrowserWindow = new remote.BrowserWindow({
+    width: ANSWER_WIN_WIDTH,
+    height: ANSWER_WIN_HEIGHT,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: false
     }
   })
-  childWindow.hide()
-  childWindow.webContents.openDevTools()
+  answerWindow.hide()
+  answerWindow.webContents.openDevTools()
 
-  await sendTextToMain(childWindow)
-  await showAnswer(childWindow)
+  return answerWindow
 }
 
 app.whenReady().then(async () => {
-  await createWindow()
-  createChildWindow()
+  const questionWindow:BrowserWindow = createQuestionWindow()
   
+  ipcMain.on(SEND_ANSWER, (event,answer:string) => {
+    questionWindow.webContents.send(SET_ANSWER,answer)
+  })
+
+  const answerWindow:BrowserWindow = createAnswerWindow()
+
+  enableRemote(answerWindow.webContents);
+
+  await sendTextToQuestionWindow(answerWindow)
+  await showAndAutoHideAnswerWindow(answerWindow,questionWindow)
+
   app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    if (BrowserWindow.getAllWindows().length === 0) createQuestionWindow()
   })
 })
 
