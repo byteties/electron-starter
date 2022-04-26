@@ -36,7 +36,7 @@ const sendTextToQuestionWindow = (win: BrowserWindow):void =>{
 const showAndAutoHideAnswerWindow = async (answerWindow: BrowserWindow):Promise<void> => {
   ipcMain.on(SHOW_ANSWER, async (event,index:string) => {
     const answer = await getAnswer(index)
-    answerWindow.loadFile('../child.html').then(() => {
+    answerWindow.loadFile('../answer.html').then(() => {
       if(answer?.isApiSuccess){
         answerWindow.webContents.send(SET_TITLE_ANSWER_WIN,answer.date)
       }

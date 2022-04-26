@@ -66,7 +66,7 @@ const sendTextToQuestionWindow = (win) => {
 const showAndAutoHideAnswerWindow = (answerWindow) => __awaiter(void 0, void 0, void 0, function* () {
     electron_1.ipcMain.on(constants_1.SHOW_ANSWER, (event, index) => __awaiter(void 0, void 0, void 0, function* () {
         const answer = yield (0, getAnswer_1.default)(index);
-        answerWindow.loadFile('../child.html').then(() => {
+        answerWindow.loadFile('../answer.html').then(() => {
             if (answer === null || answer === void 0 ? void 0 : answer.isApiSuccess) {
                 answerWindow.webContents.send(constants_1.SET_TITLE_ANSWER_WIN, answer.date);
             }
