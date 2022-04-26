@@ -4,7 +4,7 @@ import * as path from "path";
 import getAnswer from "./libs/getAnswer";
 import { QUESTION_HEIGHT,QUESTION_WIDTH,ANSWER_WIN_WIDTH,ANSWER_WIN_HEIGHT,
   SEND_ANSWER,SET_ANSWER,SEND_TITLE_ANSWER_WIN,
-  SHOW_ANSWER,SET_TITLE_ANSWER_WIN,TRIGGER_CLOSE,TIMEOUT_CLOSE } from './constants'
+  SHOW_ANSWER,SET_TITLE_ANSWER_WIN,TRIGGER_CLOSE_ANSWER_WINDOW,AUTO_CLOSE_TIMEOUT_MILLISECOND } from './constants'
 
 initialize()
 
@@ -44,8 +44,8 @@ const showAndAutoHideAnswerWindow = async (answerWindow: BrowserWindow):Promise<
     answerWindow.show()
 
     setTimeout(()=>{
-      answerWindow.webContents.send(TRIGGER_CLOSE)
-    },TIMEOUT_CLOSE)
+      answerWindow.webContents.send(TRIGGER_CLOSE_ANSWER_WINDOW)
+    },AUTO_CLOSE_TIMEOUT_MILLISECOND)
   })
 }
 
@@ -78,12 +78,12 @@ app.whenReady().then(async () => {
   await sendTextToQuestionWindow(answerWindow)
   await showAndAutoHideAnswerWindow(answerWindow)
 
-  app.on('activate', function () {
+  app.on('activate', ()=> {
     if (BrowserWindow.getAllWindows().length === 0) createQuestionWindow()
   })
 })
 
-app.on('window-all-closed', function () {
+app.on('window-all-closed', ()=> {
   if (process.platform !== 'darwin') app.quit()
 })
 

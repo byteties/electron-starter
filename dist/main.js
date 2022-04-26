@@ -73,8 +73,8 @@ const showAndAutoHideAnswerWindow = (answerWindow) => __awaiter(void 0, void 0, 
         });
         answerWindow.show();
         setTimeout(() => {
-            answerWindow.webContents.send(constants_1.TRIGGER_CLOSE);
-        }, constants_1.TIMEOUT_CLOSE);
+            answerWindow.webContents.send(constants_1.TRIGGER_CLOSE_ANSWER_WINDOW);
+        }, constants_1.AUTO_CLOSE_TIMEOUT_MILLISECOND);
     }));
 });
 const createAnswerWindow = () => {
