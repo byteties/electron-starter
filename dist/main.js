@@ -36,20 +36,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
-const remote_1 = __importDefault(require("@electron/remote"));
+const main_1 = require("@electron/remote/main");
 const path = __importStar(require("path"));
 const getAnswer_1 = __importDefault(require("./libs/getAnswer"));
 const constants_1 = require("./constants");
-require('@electron/remote/main').initialize();
+(0, main_1.initialize)();
 const createQuestionWindow = () => {
-    const questionWindow = new remote_1.default.BrowserWindow({
+    const questionWindow = new electron_1.BrowserWindow({
         width: constants_1.QUESTION_WIDTH,
         height: constants_1.QUESTION_HEIGHT,
         webPreferences: {
             preload: path.join(__dirname, '../dist/preload.js'),
             nodeIntegration: true,
             contextIsolation: false,
-            // enableRemoteModule: true
         }
     });
     questionWindow.loadFile('../index.html');
@@ -64,7 +63,7 @@ const sendTextToQuestionWindow = (win) => {
         win.show();
     });
 };
-const showAndAutoHideAnswerWindow = (answerWindow, questionWindow) => __awaiter(void 0, void 0, void 0, function* () {
+const showAndAutoHideAnswerWindow = (answerWindow) => __awaiter(void 0, void 0, void 0, function* () {
     electron_1.ipcMain.on(constants_1.SHOW_ANSWER, (event, index) => __awaiter(void 0, void 0, void 0, function* () {
         const answer = yield (0, getAnswer_1.default)(index);
         answerWindow.loadFile('../child.html').then(() => {
@@ -74,17 +73,17 @@ const showAndAutoHideAnswerWindow = (answerWindow, questionWindow) => __awaiter(
         });
         answerWindow.show();
         setTimeout(() => {
-            questionWindow.webContents.send(constants_1.TRIGGER_CLOSE);
+            answerWindow.webContents.send(constants_1.TRIGGER_CLOSE);
         }, constants_1.TIMEOUT_CLOSE);
     }));
 });
 const createAnswerWindow = () => {
-    const answerWindow = new remote_1.default.BrowserWindow({
+    const answerWindow = new electron_1.BrowserWindow({
         width: constants_1.ANSWER_WIN_WIDTH,
         height: constants_1.ANSWER_WIN_HEIGHT,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
         }
     });
     answerWindow.hide();
@@ -97,9 +96,9 @@ electron_1.app.whenReady().then(() => __awaiter(void 0, void 0, void 0, function
         questionWindow.webContents.send(constants_1.SET_ANSWER, answer);
     });
     const answerWindow = createAnswerWindow();
-    // enableRemote(answerWindow.webContents);
+    (0, main_1.enable)(answerWindow.webContents);
     yield sendTextToQuestionWindow(answerWindow);
-    yield showAndAutoHideAnswerWindow(answerWindow, questionWindow);
+    yield showAndAutoHideAnswerWindow(answerWindow);
     electron_1.app.on('activate', function () {
         if (electron_1.BrowserWindow.getAllWindows().length === 0)
             createQuestionWindow();

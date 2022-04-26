@@ -1,5 +1,4 @@
 import { app,BrowserWindow,ipcMain } from "electron";
-import remote from '@electron/remote'
 import { initialize, enable as enableRemote } from "@electron/remote/main";
 import * as path from "path";
 import getAnswer from "./libs/getAnswer";
@@ -7,17 +6,16 @@ import { QUESTION_HEIGHT,QUESTION_WIDTH,ANSWER_WIN_WIDTH,ANSWER_WIN_HEIGHT,
   SEND_ANSWER,SET_ANSWER,SEND_TITLE_ANSWER_WIN,
   SHOW_ANSWER,SET_TITLE_ANSWER_WIN,TRIGGER_CLOSE,TIMEOUT_CLOSE } from './constants'
 
-require('@electron/remote/main').initialize()
+initialize()
 
 const createQuestionWindow = ():BrowserWindow => {
-  const questionWindow: BrowserWindow = new remote.BrowserWindow({
+  const questionWindow: BrowserWindow = new BrowserWindow({
     width: QUESTION_WIDTH,
     height: QUESTION_HEIGHT,
     webPreferences: {
       preload: path.join(__dirname, '../dist/preload.js'),
       nodeIntegration: true,
       contextIsolation: false,
-      // enableRemoteModule: true
     }
   })
 
@@ -35,7 +33,7 @@ const sendTextToQuestionWindow = (win: BrowserWindow):void =>{
   })
 }
 
-const showAndAutoHideAnswerWindow = async (answerWindow: BrowserWindow,questionWindow:BrowserWindow):Promise<void> => {
+const showAndAutoHideAnswerWindow = async (answerWindow: BrowserWindow):Promise<void> => {
   ipcMain.on(SHOW_ANSWER, async (event,index:string) => {
     const answer = await getAnswer(index)
     answerWindow.loadFile('../child.html').then(() => {
@@ -46,18 +44,18 @@ const showAndAutoHideAnswerWindow = async (answerWindow: BrowserWindow,questionW
     answerWindow.show()
 
     setTimeout(()=>{
-      questionWindow.webContents.send(TRIGGER_CLOSE)
+      answerWindow.webContents.send(TRIGGER_CLOSE)
     },TIMEOUT_CLOSE)
   })
 }
 
 const createAnswerWindow = ():BrowserWindow =>{
-  const answerWindow: BrowserWindow = new remote.BrowserWindow({
+  const answerWindow: BrowserWindow = new BrowserWindow({
     width: ANSWER_WIN_WIDTH,
     height: ANSWER_WIN_HEIGHT,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
     }
   })
   answerWindow.hide()
@@ -78,7 +76,7 @@ app.whenReady().then(async () => {
   enableRemote(answerWindow.webContents);
 
   await sendTextToQuestionWindow(answerWindow)
-  await showAndAutoHideAnswerWindow(answerWindow,questionWindow)
+  await showAndAutoHideAnswerWindow(answerWindow)
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createQuestionWindow()

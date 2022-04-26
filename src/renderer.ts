@@ -1,12 +1,8 @@
 
 import { ipcRenderer } from 'electron'
-// import * as remote from '@electron/remote';
-// const remoteMain = remote.require("@electron/remote/main");
-// remoteMain.initialize();
 
 const SET_ANSWER = 'set-answer'
 const SEND_TITLE_CHILD = 'send-title-child'
-const TRIGGER_CLOSE = 'trigger-close'
 
 const setButton = document.getElementById('set')
 
@@ -20,12 +16,4 @@ ipcRenderer.on(SET_ANSWER,(event,answer:string)=>{
     if(text){
         text.innerText = `Answer :${answer}`
     }
-})
-
-
-ipcRenderer.on(TRIGGER_CLOSE,(event)=>{
-    console.log('------------ 0')
-    // const window = remote.getCurrentWindow()
-    // console.log('------------')
-    // console.log(window)
 })
